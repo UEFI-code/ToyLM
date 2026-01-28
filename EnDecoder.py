@@ -15,12 +15,12 @@ class EnDecoder(nn.Module):
 
 if __name__ == "__main__":
     x = torch.tensor([[i for i in range(256)]])
-    dummy_model = EnDecoder()
-    print(dummy_model.forward(x))
+    model = EnDecoder()
+    print(model.forward(x))
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(dummy_model.parameters())
+    optimizer = torch.optim.Adam(model.parameters())
     for _ in range(9999):
-        out = dummy_model.forward(x)
+        out = model.forward(x)
         # calc cross-entropy loss between out and x
         # before calc cross-entropy, we need merge the tensor to (batch_size * seq_len, 256)
         loss = loss_fn(out.view(-1, 256), x.view(-1))
@@ -30,4 +30,4 @@ if __name__ == "__main__":
         optimizer.step()
     # show output with argmax
     print(out.argmax(dim=-1))
-    torch.save(dummy_model.state_dict(), 'encoder_decoder.pth')
+    torch.save(model.state_dict(), 'encoder_decoder.pth')
