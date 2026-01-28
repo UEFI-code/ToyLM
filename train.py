@@ -5,24 +5,19 @@ import torch.nn as nn
 import dataset as dataset
 from tqdm import tqdm
 import gpu_chooser
-import time
-
-contextSize = 64
-batchSize = 64
-epoch = 1000
-learning_rate, weight_decay = 1e-3, 0
+import conf
 
 trainingDevice = gpu_chooser.choose_gpu()
 print(f'Training on device: {trainingDevice}')
 
-datar = dataset.DataWarpper(contextSize+1, './demo_txt_dataset')
+datar = dataset.DataWarpper(conf.contextSize+1, './demo_txt_dataset')
 
 # Load Encoder-Decoder model
-en_decoder = EnDecoder.EnDecoder(embeddingDim=4)
+en_decoder = EnDecoder.EnDecoder(embeddingDim=conf.embedding_dim)
 en_decoder.load_state_dict(torch.load('encoder_decoder.pth'))
 en_decoder = en_decoder.to(trainingDevice)
 
-langModel = LangModel.LangModel(max_seq_len=contextSize, embedding_dim=4, hidden_dim=64)
+langModel = LangModel.LangModel(max_seq_len=conf.contextSize, embedding_dim=conf.embedding_dim, hidden_dim=conf.hidden_dim)
 try:
     langModel.load_state_dict(torch.load('lang_model.pth'))
     print('Lang model loaded')
@@ -39,7 +34,7 @@ def infer_pipeline(source):
 def test(test_batch):
     assert test_batch.shape[0] == 1
     res = ''
-    for _ in range(contextSize):
+    for _ in range(conf.contextSize):
         print(f'In: {test_batch}')
         out = infer_pipeline(test_batch)
         print(f'Out: {out}')
@@ -50,15 +45,15 @@ def test(test_batch):
         test_batch = torch.concat((test_batch[:, 1:], torch.tensor([[byte]], device=trainingDevice, dtype=torch.long)), dim=1)
     print(f'Final Result: {res}')
 
-optim = torch.optim.SGD(langModel.parameters(), lr=learning_rate, weight_decay=weight_decay)
+optim = torch.optim.SGD(langModel.parameters(), lr=conf.learning_rate, weight_decay=conf.weight_decay)
 lossfunc = nn.CrossEntropyLoss()
 
-for n in tqdm(range(epoch)):
-    for _ in range(1 + datar.totalBinSize // batchSize):
+for n in tqdm(range(conf.epoch)):
+    for _ in range(1 + datar.totalBinSize // conf.batchSize):
         # get data
-        slice = datar.makeBatch(batchSize).to(trainingDevice)
-        source = slice[:, :contextSize]
-        target = slice[:, contextSize]
+        slice = datar.makeBatch(conf.batchSize).to(trainingDevice)
+        source = slice[:, :conf.contextSize]
+        target = slice[:, conf.contextSize]
         # forward
         out = infer_pipeline(source)
         # calc loss

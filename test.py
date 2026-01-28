@@ -3,20 +3,19 @@ import LangModel
 import torch
 import dataset as dataset
 import gpu_chooser
+import conf
 
-contextSize = 64
-
-datar = dataset.DataWarpper(contextSize, './demo_txt_dataset')
+datar = dataset.DataWarpper(conf.contextSize, './demo_txt_dataset')
 
 device = gpu_chooser.choose_gpu()
 
 # Load Encoder-Decoder model
-en_decoder = EnDecoder.EnDecoder(embeddingDim=4)
+en_decoder = EnDecoder.EnDecoder(embeddingDim=conf.embedding_dim)
 en_decoder.load_state_dict(torch.load('encoder_decoder.pth'))
 en_decoder = en_decoder.to(device)
 
 # Load Language Model
-langModel = LangModel.LangModel(max_seq_len=contextSize, embedding_dim=4, hidden_dim=64)
+langModel = LangModel.LangModel(max_seq_len=conf.contextSize, embedding_dim=conf.embedding_dim, hidden_dim=conf.hidden_dim)
 langModel.load_state_dict(torch.load('lang_model.pth'))
 langModel = langModel.to(device)
 
