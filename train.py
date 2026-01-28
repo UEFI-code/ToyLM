@@ -53,21 +53,22 @@ def test(test_batch):
 optim = torch.optim.SGD(langModel.parameters(), lr=learning_rate, weight_decay=weight_decay)
 lossfunc = nn.CrossEntropyLoss()
 
-source, target = datar.makeBatch(batchSize)
-source = source.to(trainingDevice)
-target = target.to(trainingDevice)
-
 for n in tqdm(range(epoch)):
-    # forward
-    out = infer_pipeline(source)
-    # calc loss
-    loss = lossfunc(out, target)
-    print(f'Epoch {n} Loss: {loss.item()}')
-    # backward and optimize
-    optim.zero_grad()
-    loss.backward()
-    optim.step()
-    if n % 512 == 15:
+    for _ in range(1 + datar.totalBinSize // batchSize):
+        # get data
+        source, target = datar.makeBatch(batchSize)
+        source = source.to(trainingDevice)
+        target = target.to(trainingDevice)
+        # forward
+        out = infer_pipeline(source)
+        # calc loss
+        loss = lossfunc(out, target)
+        print(f'Epoch {n} Loss: {loss.item()}')
+        # backward and optimize
+        optim.zero_grad()
+        loss.backward()
+        optim.step()
+    if n % 128 == 127:
         state_dict = langModel.state_dict()
         torch.save(state_dict, 'lang_model.pth')
         print('Model saved')

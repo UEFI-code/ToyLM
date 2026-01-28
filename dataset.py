@@ -45,8 +45,8 @@ class DataWarpper():
                     self.bin = self.bin_list[self.file_index]
                 else:
                     self.bin = open(self.file_list[self.file_index], 'rb').read()
-            if self.bin_p + self.contextSize - 1 > len(self.bin) - 1:
-                self.bin_p += self.contextSize - 1 # this will trigger next file loading
+            if self.bin_p + self.contextSize > len(self.bin) - 1:
+                self.bin_p += self.contextSize # this will trigger next file loading
                 continue
             sourceBatch.append(list(self.bin[self.bin_p:self.bin_p + self.contextSize]))
             targetBatch.append(self.bin[self.bin_p + self.contextSize])
