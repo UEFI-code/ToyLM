@@ -22,7 +22,7 @@ en_decoder = EnDecoder.EnDecoder(embeddingDim=4)
 en_decoder.load_state_dict(torch.load('encoder_decoder.pth'))
 en_decoder = en_decoder.to(trainingDevice)
 
-langModel = LangModel.LangModel(max_seq_len=contextSize, embedding_dim=4, hidden_dim=64)
+langModel = LangModel.LangModel(max_seq_len=contextSize, embedding_dim=4, hidden_dim=64, depth=1)
 try:
     langModel.load_state_dict(torch.load('lang_model.pth'))
     print('Lang model loaded')

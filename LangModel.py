@@ -2,20 +2,19 @@ import torch
 import torch.nn as nn
 
 class LangModel(nn.Module):
-    def __init__(self, max_seq_len=64, embedding_dim=4, hidden_dim=256):
+    def __init__(self, max_seq_len=64, embedding_dim=4, hidden_dim=64, depth=3):
         super(LangModel, self).__init__()
-        self.li1 = nn.Linear(max_seq_len * embedding_dim, hidden_dim)
-        self.li2 = nn.Linear(hidden_dim, hidden_dim)
-        self.li3 = nn.Linear(hidden_dim, embedding_dim)
-        self.gelu = nn.GELU()
-
+        self.mlp = nn.Sequential()
+        self.mlp.append(nn.Linear(max_seq_len * embedding_dim, hidden_dim))
+        self.mlp.append(nn.GELU())
+        for _ in range(depth):
+            self.mlp.append(nn.Linear(hidden_dim, hidden_dim))
+            self.mlp.append(nn.GELU())
+        self.mlp.append(nn.Linear(hidden_dim, embedding_dim))
+        
     def forward(self, x):
         x = x.view(x.size(0), -1)
-        x = self.li1(x)
-        x = self.gelu(x)
-        x = self.li2(x)
-        x = self.gelu(x)
-        x = self.li3(x)
+        x = self.mlp(x)
         return x
 
 if __name__ == "__main__":
