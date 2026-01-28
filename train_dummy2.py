@@ -23,6 +23,11 @@ en_decoder.load_state_dict(torch.load('encoder_decoder.pth'))
 en_decoder = en_decoder.to(trainingDevice)
 
 langModel = LangModel.LangModel(max_seq_len=contextSize, embedding_dim=4, hidden_dim=64)
+try:
+    langModel.load_state_dict(torch.load('lang_model.pth'))
+    print('Lang model loaded')
+except:
+    print('Lang model not found, initializing from scratch')
 langModel = langModel.to(trainingDevice)
 
 def infer_pipeline(source):
@@ -34,7 +39,7 @@ def infer_pipeline(source):
 def test(test_batch):
     assert test_batch.shape[0] == 1
     res = ''
-    for _ in range(64):
+    for _ in range(contextSize):
         print(f'In: {test_batch}')
         out = infer_pipeline(test_batch)
         print(f'Out: {out}')
