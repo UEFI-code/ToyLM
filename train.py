@@ -58,11 +58,11 @@ for n in tqdm(range(conf.epoch)):
         out = infer_pipeline(source)
         # calc loss
         loss = lossfunc(out, target)
-        print(f'Epoch {n} Loss: {loss.item()}')
         # backward and optimize
         optim.zero_grad()
         loss.backward()
         optim.step()
+    print(f'Epoch {n} Loss: {loss.item()}')
     if n % 128 == 127:
         state_dict = langModel.state_dict()
         torch.save(state_dict, 'lang_model.pth')
