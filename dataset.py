@@ -49,7 +49,7 @@ class DataWarpper():
                 self.bin_p += self.contextSize - 1 # this will trigger next file loading
                 continue
             sourceBatch.append(list(self.bin[self.bin_p:self.bin_p + self.contextSize]))
-            targetBatch.append([self.bin[self.bin_p + self.contextSize]])
+            targetBatch.append(self.bin[self.bin_p + self.contextSize])
             self.bin_p += 1
             item_count += 1
             

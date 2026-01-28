@@ -1,38 +1,43 @@
-import Model
+import EnDecoder
+import LangModel
 import torch
 import dataset as dataset
 import gpu_chooser
 
-contextSize = 128
-epoch = 500000
+contextSize = 64
 
 datar = dataset.DataWarpper(contextSize, './demo_txt_dataset')
 
-theModel = Model.myModel(max_seq_len=contextSize)
-
-state_dict = torch.load('model.pth', map_location=torch.device('cpu'))
-badtrans_now_deepth = state_dict['badtrans_now_deepth']
-theModel.load_state_dict(state_dict, strict=False)
-print(f'Model loaded, badtrans_start_deepth: {badtrans_now_deepth}')
-
 device = gpu_chooser.choose_gpu()
-theModel = theModel.to(device)
+
+# Load Encoder-Decoder model
+en_decoder = EnDecoder.EnDecoder(embeddingDim=4)
+en_decoder.load_state_dict(torch.load('encoder_decoder.pth'))
+en_decoder = en_decoder.to(device)
+
+# Load Language Model
+langModel = LangModel.LangModel(max_seq_len=contextSize, embedding_dim=4, hidden_dim=64)
+langModel.load_state_dict(torch.load('lang_model.pth'))
+langModel = langModel.to(device)
+
+def infer_pipeline(source):
+    source_encoded = en_decoder.pre_embedding(source)
+    lang_latent = langModel(source_encoded)
+    out = en_decoder.decoder(lang_latent)
+    return out
 
 def test(test_batch):
     assert test_batch.shape[0] == 1
-    def decode_str(x):
-        return ''.join([chr(i) for i in x])
     res = ''
-    for _ in range(32):
+    for _ in range(64):
         print(f'In: {test_batch}')
-        modelResponse = theModel(test_batch, badtrans_now_deepth)[0]
-        modelResponse = torch.argmax(modelResponse, dim=-1).tolist()
-        print(f'Out: {modelResponse}')
-        decoded_str = decode_str(modelResponse)
+        out = infer_pipeline(test_batch)
+        print(f'Out: {out}')
+        byte = out.argmax(dim=-1).item()
+        decoded_str = chr(byte)
         print(f'Decoded: {decoded_str}')
-        res += decoded_str[-1]
-        test_batch[0, -1] = modelResponse[-1]
-        test_batch = torch.concat((test_batch[:, 1:], torch.tensor([[256]], device=device, dtype=torch.long)), dim=1)
+        res += decoded_str
+        test_batch = torch.concat((test_batch[:, 1:], torch.tensor([[byte]], device=device, dtype=torch.long)), dim=1)
     print(f'Final Result: {res}')
 
 source, _ = datar.makeBatch(1)

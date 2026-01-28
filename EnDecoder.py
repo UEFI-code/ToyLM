@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import math
 
 class EnDecoder(nn.Module):
     def __init__(self, embeddingDim = 4):
