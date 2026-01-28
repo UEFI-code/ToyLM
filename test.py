@@ -40,6 +40,6 @@ def test(test_batch):
         test_batch = torch.concat((test_batch[:, 1:], torch.tensor([[byte]], device=device, dtype=torch.long)), dim=1)
     print(f'Final Result: {res}')
 
-source, _ = datar.makeBatch(1)
+source = datar.makeBatch(1)
 source = source.to(device)
 test(source)

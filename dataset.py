@@ -33,7 +33,6 @@ class DataWarpper():
     
     def makeBatch(self, batchSize):
         sourceBatch = []
-        targetBatch = []
         item_count = 0
         while item_count < batchSize:
             while not len(self.bin) - self.bin_p > 0: # No leaving data in buffer, seek next non-empty file
@@ -45,15 +44,14 @@ class DataWarpper():
                     self.bin = self.bin_list[self.file_index]
                 else:
                     self.bin = open(self.file_list[self.file_index], 'rb').read()
-            if self.bin_p + self.contextSize > len(self.bin) - 1:
-                self.bin_p += self.contextSize # this will trigger next file loading
+            if self.bin_p + self.contextSize - 1 > len(self.bin) - 1:
+                self.bin_p += self.contextSize - 1 # this will trigger next file loading
                 continue
             sourceBatch.append(list(self.bin[self.bin_p:self.bin_p + self.contextSize]))
-            targetBatch.append(self.bin[self.bin_p + self.contextSize])
             self.bin_p += 1
             item_count += 1
             
-        return torch.tensor(sourceBatch, dtype=torch.long), torch.tensor(targetBatch, dtype=torch.long)
+        return torch.tensor(sourceBatch, dtype=torch.long)
 
 if __name__ == '__main__':
     dataset = DataWarpper(8, './demo_txt_dataset')

@@ -15,7 +15,7 @@ learning_rate, weight_decay = 1e-3, 0
 trainingDevice = gpu_chooser.choose_gpu()
 print(f'Training on device: {trainingDevice}')
 
-datar = dataset.DataWarpper(contextSize, './demo_txt_dataset')
+datar = dataset.DataWarpper(contextSize+1, './demo_txt_dataset')
 
 # Load Encoder-Decoder model
 en_decoder = EnDecoder.EnDecoder(embeddingDim=4)
@@ -56,9 +56,9 @@ lossfunc = nn.CrossEntropyLoss()
 for n in tqdm(range(epoch)):
     for _ in range(1 + datar.totalBinSize // batchSize):
         # get data
-        source, target = datar.makeBatch(batchSize)
-        source = source.to(trainingDevice)
-        target = target.to(trainingDevice)
+        slice = datar.makeBatch(batchSize).to(trainingDevice)
+        source = slice[:, :contextSize]
+        target = slice[:, contextSize]
         # forward
         out = infer_pipeline(source)
         # calc loss

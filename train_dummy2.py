@@ -15,7 +15,7 @@ learning_rate, weight_decay = 1e-3, 0
 trainingDevice = gpu_chooser.choose_gpu()
 print(f'Training on device: {trainingDevice}')
 
-datar = dataset.DataWarpper(contextSize, './demo_txt_dataset')
+datar = dataset.DataWarpper(contextSize+1, './demo_txt_dataset')
 
 # Load Encoder-Decoder model
 en_decoder = EnDecoder.EnDecoder(embeddingDim=4)
@@ -53,9 +53,9 @@ def test(test_batch):
 optim = torch.optim.SGD(langModel.parameters(), lr=learning_rate, weight_decay=weight_decay)
 lossfunc = nn.CrossEntropyLoss()
 
-source, target = datar.makeBatch(batchSize)
-source = source.to(trainingDevice)
-target = target.to(trainingDevice)
+slice = datar.makeBatch(batchSize).to(trainingDevice)
+source = slice[:, :contextSize]
+target = slice[:, contextSize]
 
 for n in tqdm(range(epoch)):
     # forward
