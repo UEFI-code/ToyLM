@@ -14,11 +14,11 @@ class LangModel(nn.Module):
             self.mlp.append(nn.GELU())
         self.adaptor_2 = nn.Linear(hidden_dim, embedding_dim)
         
-    def forward(self, x, noise=None):
+    def forward(self, x):
         x = x.view(x.size(0), -1)
+        x = x + torch.rand_like(x)
         x = self.adaptor_1(x)
-        if noise: x = x + noise
-        else: x = x + torch.rand_like(x)
+        x = x + torch.rand_like(x)
         x = self.mlp(x)
         x = self.adaptor_2(x)
         return x
