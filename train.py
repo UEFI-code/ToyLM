@@ -47,6 +47,7 @@ def test(test_batch):
 
 optim = torch.optim.SGD(langModel.parameters(), lr=conf.learning_rate, weight_decay=conf.weight_decay)
 lossfunc = nn.CrossEntropyLoss()
+langModel.train()
 
 for n in tqdm(range(conf.epoch)):
     for _ in range(1 + datar.totalBinSize // conf.batchSize):
@@ -68,4 +69,5 @@ for n in tqdm(range(conf.epoch)):
         torch.save(state_dict, 'lang_model.pth')
         print('Model saved')
 
+langModel.eval()
 test(source[0:1])

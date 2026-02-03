@@ -16,7 +16,7 @@ class LangModel(nn.Module):
         
     def forward(self, x):
         x = x.view(x.size(0), -1)
-        x = x + torch.rand_like(x)
+        x = torch.dropout(x, p=0.1, train=self.training)
         x = self.adaptor_1(x)
         x = x + torch.rand_like(x)
         x = self.mlp(x)
