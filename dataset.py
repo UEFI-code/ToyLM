@@ -51,7 +51,7 @@ class DataWarpper():
             self.bin_p += 1
             item_count += 1
             
-        return torch.tensor(sourceBatch, dtype=torch.long)
+        return torch.tensor(sourceBatch, dtype=torch.int)
 
 if __name__ == '__main__':
     dataset = DataWarpper(8, './demo_txt_dataset')

@@ -36,7 +36,7 @@ def test(test_batch):
         decoded_str = chr(byte)
         print(f'Decoded: {decoded_str}')
         res += decoded_str
-        test_batch = torch.concat((test_batch[:, 1:], torch.tensor([[byte]], device=device, dtype=torch.long)), dim=1)
+        test_batch = torch.concat((test_batch[:, 1:], torch.tensor([[byte]], device=device, dtype=torch.int)), dim=1)
     print(f'Final Result: {res}')
 
 source = datar.makeBatch(1)
