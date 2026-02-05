@@ -40,10 +40,10 @@ def test(test_batch):
     print(f'Final Result: {res}')
 
 while True:
-    usr_prompt = input("Enter prompt, more than 64 bytes: ")
-    if len(usr_prompt) < 64:
+    usr_prompt = input(f"Enter prompt, more than {conf.contextSize} bytes: ")
+    if len(usr_prompt) < conf.contextSize:
         print("Prompt is too short.")
         continue
-    usr_prompt = usr_prompt[-64:].encode('utf-8')
-    test_batch = torch.tensor([list(usr_prompt)], device=device, dtype=torch.long)
+    usr_prompt = usr_prompt[-conf.contextSize:].encode('utf-8')
+    test_batch = torch.tensor([list(usr_prompt)], device=device, dtype=torch.int)
     test(test_batch)
