@@ -6,6 +6,7 @@ import dataset as dataset
 from tqdm import tqdm
 import gpu_chooser
 import conf
+# import random
 
 trainingDevice = gpu_chooser.choose_gpu()
 print(f'Training on device: {trainingDevice}')
@@ -27,9 +28,7 @@ langModel = langModel.to(trainingDevice)
 
 def infer_pipeline(source):
     source_encoded = en_decoder.pre_embedding(source)
-    lang_latent = langModel(source_encoded)
-    out = en_decoder.decoder(lang_latent)
-    return out
+    return langModel(source_encoded)
 
 def test(test_batch):
     assert test_batch.shape[0] == 1
@@ -47,12 +46,24 @@ def test(test_batch):
 
 optim = torch.optim.SGD(langModel.parameters(), lr=conf.learning_rate, weight_decay=conf.weight_decay)
 lossfunc = nn.CrossEntropyLoss()
-langModel.train()
+
+# def glicher(x):
+#     for _ in range(x.size(0) // 2):
+#         # trigger mutation
+#         batch_id_a = random.randint(0, x.size(0) - 1)
+#         pos_s = random.randint(0, x.size(1))
+#         pos_e = random.randint(0, x.size(1))
+#         batch_id_b = random.randint(0, x.size(0) - 1)
+#         # swap
+#         backup = x[batch_id_a, pos_s:pos_e].clone()
+#         x[batch_id_a, pos_s:pos_e] = x[batch_id_b, pos_s:pos_e]
+#         x[batch_id_b, pos_s:pos_e] = backup
 
 for n in tqdm(range(conf.epoch)):
     for _ in range(1 + datar.totalBinSize // conf.batchSize):
         # get data
         slice = datar.makeBatch(conf.batchSize).to(trainingDevice)
+        # glicher(slice)
         source = slice[:, :conf.contextSize]
         target = slice[:, conf.contextSize]
         # forward
@@ -69,5 +80,4 @@ for n in tqdm(range(conf.epoch)):
         torch.save(state_dict, 'lang_model.pth')
         print('Model saved')
 
-langModel.eval()
 test(source[0:1])

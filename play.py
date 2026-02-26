@@ -21,9 +21,7 @@ langModel = langModel.to(device)
 
 def infer_pipeline(source):
     source_encoded = en_decoder.pre_embedding(source)
-    lang_latent = langModel(source_encoded)
-    out = en_decoder.decoder(lang_latent)
-    return out
+    return langModel(source_encoded)
 
 def test(test_batch):
     assert test_batch.shape[0] == 1

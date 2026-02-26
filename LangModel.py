@@ -12,13 +12,12 @@ class LangModel(nn.Module):
         for _ in range(depth):
             self.mlp.append(nn.Linear(hidden_dim, hidden_dim))
             self.mlp.append(nn.GELU())
-        self.adaptor_2 = nn.Linear(hidden_dim, embedding_dim)
+        self.adaptor_2 = nn.Linear(hidden_dim, 256)
         
     def forward(self, x):
         x = x.view(x.size(0), -1)
-        x = torch.dropout(x, p=0.1, train=self.training)
         x = self.adaptor_1(x)
-        x = x + torch.rand_like(x)
+        #x = x + torch.rand_like(x)
         x = self.mlp(x)
         x = self.adaptor_2(x)
         return x
