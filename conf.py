@@ -1,7 +1,7 @@
-contextSize = 6
+contextSize = 8
 embedding_dim = 4
 hidden_dim = 128
-depth = 3
+depth = 2
 
 batchSize = 128
 epoch = 12000
