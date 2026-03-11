@@ -1,6 +1,6 @@
 contextSize = 32
 embedding_dim = 4
-hidden_dim = 128
+hidden_dim = 192
 depth = 2
 
 batchSize = 256
